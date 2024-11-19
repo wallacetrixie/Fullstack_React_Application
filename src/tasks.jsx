@@ -1,33 +1,38 @@
-
 import React, { useEffect, useState } from "react";
 
 function Tasks() {
   const [username, setUsername] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Fetching the username on the component mount
   useEffect(() => {
     const fetchUsername = async () => {
       try {
         const response = await fetch("http://localhost:5000/user", {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
         const data = await response.json();
         if (data.success) {
           setUsername(data.username);
         } else {
-          console.log("Failed to fetch username:", data.message);
+          setError("Failed to load user information");
         }
       } catch (error) {
-        console.error("Error fetching username:", error);
+        setError("An error occurred while fetching data.");
+      } finally {
+        setLoading(false);
       }
     };
     fetchUsername();
   }, []);
 
-  return <h1>Welcome back, {username}</h1>;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+
+  return <h1>Welcome back, {username}!</h1>;
 }
 
 export default Tasks;
