@@ -1,0 +1,84 @@
+/* General Styling */
+.tasks-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+  font-family: "Arial", sans-serif;
+  color: #333;
+}
+
+.welcome-message h1 {
+  font-size: 2rem;
+  color: #4caf50;
+  margin-bottom: 20px;
+}
+
+.description h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.description p {
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.primary-btn {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.primary-btn:hover {
+  background-color: #45a049;
+}
+
+/* Event Form Styling */
+.event-form {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.event-form h2 {
+  margin-bottom: 20px;
+  color: #4caf50;
+}
+
+.event-form label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.event-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.event-form button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.event-form button:hover {
+  background-color: #45a049;
+}
