@@ -40,15 +40,31 @@ function Tasks() {
   const handleInputChange = (e) => {
     setEventDetails({ ...eventDetails, [e.target.name]: e.target.value });
   };
+   
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    console.log("Event Details Submitted:", eventDetails);
-    // Add API call to submit the event details if needed
-    alert(`Event "${eventDetails.eventName}" scheduled successfully!`);
-    setEventDetails({ eventName: "", venue: "", date: "" }); // Reset form
-    setShowForm(false); // Hide form after submission
-  };
+
+const handleFormSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await axios.post("http://localhost:5000/events", eventDetails, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    if (response.status === 201) {
+      alert(`Event "${eventDetails.eventName}" scheduled successfully!`);
+      setEventDetails({ eventName: "", venue: "", date: "" }); // Reset form
+      setShowForm(false); // Hide form
+    } else {
+      alert("Failed to schedule the event. Please try again.");
+    }
+  } catch (error) {
+    const message = error.response?.data?.message || "An error occurred. Please try again.";
+    alert(message);
+  }
+};
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
@@ -113,7 +129,6 @@ function Tasks() {
               onChange={handleInputChange}
               required
             />
-
             <button type="submit" className="primary-btn">
               Submit
             </button>

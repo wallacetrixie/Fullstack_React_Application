@@ -79,6 +79,41 @@ app.post("/login", (req, res) => {
   });
 });
 
+app.post("/events", async (req, res) => {
+  const { eventName, venue, date } = req.body;
+
+  // Validate the incoming request body
+  if (!eventName || !venue || !date) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  try {
+  
+    const sql =
+      "INSERT INTO events (event_name, venue, event_date) VALUES (?, ?, ?)";
+    const [result] = await connection.execute(sql, [eventName, venue, date]);
+
+    // Close the connection after the query
+    await connection.end();
+
+    // Respond with success if the insertion was successful
+    if (result.affectedRows === 1) {
+      res.status(201).json({ message: "Event scheduled successfully." });
+    } else {
+      res
+        .status(500)
+        .json({ message: "Failed to schedule the event. Please try again." });
+    }
+  } catch (error) {
+    console.error("Error scheduling event:", error);
+    res.status(500).json({ message: "An internal server error occurred." });
+  }
+});
+
+
+
+
+
 app.get("/user", (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token)
