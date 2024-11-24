@@ -5,7 +5,7 @@ function Tasks() {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showForm, setShowForm] = useState(false); // Toggle form visibility
+  const [showForm, setShowForm] = useState(false);
   const [eventDetails, setEventDetails] = useState({
     eventName: "",
     venue: "",
@@ -75,7 +75,12 @@ function Tasks() {
       {/* Event Form */}
       {showForm && (
         <section className="event-form">
-          <h2>Schedule an Event</h2>
+          <div className="form-header">
+            <h2>Schedule an Event</h2>
+            <button className="close-btn" onClick={() => setShowForm(false)}>
+              &times;
+            </button>
+          </div>
           <form onSubmit={handleFormSubmit}>
             <label htmlFor="eventName">Event Name:</label>
             <input
