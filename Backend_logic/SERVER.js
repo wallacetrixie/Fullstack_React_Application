@@ -79,38 +79,6 @@ app.post("/login", (req, res) => {
   });
 });
 
-
-
-
-
-
-// Endpoint to handle event submission
-app.post("/events", (req, res) => {
-  const { eventName, venue, date } = req.body;
-
-  // Validate the request
-  if (!eventName || !venue || !date) {
-    return res.status(400).json({ message: "Please fill in all fields before submitting." });
-  }
-
-  const data = { event_name: eventName, venue, event_date: date };
-
-  db.query("INSERT INTO events SET ?", data, (err, result) => {
-    if (err) {
-      console.error("Error inserting event:", err);
-      return res.status(500).json({ message: "Failed to schedule event. Please try again." });
-    }
-
-    // Check if the event was successfully inserted
-    if (result.affectedRows === 1) {
-      res.status(201).json({ message: "Event scheduled successfully!" });
-    } else {
-      res.status(500).json({ message: "Failed to schedule the event. Please try again." });
-    }
-  });
-});
-
-
 app.get("/user", (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token)
@@ -150,6 +118,26 @@ app.get("/user", (req, res) => {
   }
 });
 
+
+// Endpoint to handle event submission
+app.post("/events", (req, res) => {
+  const { eventName, venue, date } = req.body;
+  if (!eventName || !venue || !date) {
+    return res.status(400).json({ message: "Please fill in all fields before submitting." });
+  }
+  const data = { event_name: eventName, venue, event_date: date };
+  db.query("INSERT INTO events SET ?", data, (err, result) => {
+    if (err) {
+      console.error("Error inserting event:", err);
+      return res.status(500).json({ message: "Failed to schedule event. Please try again." });
+    }
+    if (result.affectedRows === 1) {
+      res.status(201).json({ message: "Event scheduled successfully!" });
+    } else {
+      res.status(500).json({ message: "Failed to schedule the event. Please try again." });
+    }
+  });
+});
 
 
 app.listen(5000, () => {
