@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import "./styles/Tasks.css"; 
+import "./styles/Tasks.css";
+import axios from "axios"; 
 
 function Tasks() {
   const [username, setUsername] = useState("");
@@ -42,16 +43,19 @@ function Tasks() {
   };
    
 
-
 const handleFormSubmit = async (e) => {
   e.preventDefault();
 
   try {
-    const response = await axios.post("http://localhost:5000/events", eventDetails, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
+    const response = await axios.post(
+      "http://localhost:5000/events",
+      eventDetails,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (response.status === 201) {
       alert(`Event "${eventDetails.eventName}" scheduled successfully!`);
