@@ -66,16 +66,14 @@
 .close-btn {
   background: none;
   border: none;
-  font-size: 22px;
+  width:30px;
+  font-size: 35px;
   font-weight: bold;
   cursor: pointer;
-  color: #ff6b6b;
+  color: #fc3e3e;
   transition: color 0.3s ease;
 }
 
-.close-btn:hover {
-  color: #e63939;
-}
 
 label {
   display: block;
@@ -86,11 +84,10 @@ label {
 }
 
 input {
-  width: 100%;
+  width: 95%;
   padding: 12px;
   margin-bottom: 20px;
   border: 1px solid #ddd;
-  border-radius: 10px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
   background: #f9f9f9;
