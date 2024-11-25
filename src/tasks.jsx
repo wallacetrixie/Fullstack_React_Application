@@ -46,11 +46,13 @@ function Tasks() {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-        if (response.data.success) {
-          setEventDetails(response.data.events);
-        } else {
-          setError("Failed to fetch event details.");
-        }
+       
+        if (response.status === 200) {
+  setEventDetails(response.data.events);
+} else {
+  setError("Failed to fetch event details.");
+}
+
       } catch (error) {
         setError("Error occurred while fetching event details.");
       } finally {
@@ -114,6 +116,9 @@ function Tasks() {
       {showForm && (
         <section className="event-form">
           <h2>Schedule an Event</h2>
+          <button className="close-btn" onClick={() => setShowForm(false)}>
+              &times;
+            </button>
           <form onSubmit={handleFormSubmit}>
             <label htmlFor="eventName">Event Name:</label>
             <input

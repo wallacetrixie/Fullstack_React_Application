@@ -119,85 +119,89 @@ app.get("/user", (req, res) => {
 });
 
 
-// Endpoint to handle event submission
 app.post("/events", (req, res) => {
-  const { eventName, venue, date } = req.body;
-  if (!eventName || !venue || !date) {
-    return res.status(400).json({ message: "Please fill in all fields before submitting." });
+  const authHeader = req.headers.authorization;
+
+  // Validate the authorization token
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized. Please log in first." });
   }
-  const data = { event_name: eventName, venue, event_date: date };
-  db.query("INSERT INTO events SET ?", data, (err, result) => {
-    if (err) {
-      console.error("Error inserting event:", err);p
-      return res.status(500).json({ message: "Failed to schedule event. Please try again." });
+
+  const token = authHeader.split(" ")[1];
+  try {
+    // Verify the token to extract the user's ID
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const { eventName, venue, date } = req.body;
+
+    // Validate request body
+    if (!eventName || !venue || !date) {
+      return res
+        .status(400)
+        .json({ message: "Please fill in all fields before submitting." });
     }
-    if (result.affectedRows === 1) {
-      res.status(201).json({ message: "Event scheduled successfully!" });
-    } else {
-      res.status(500).json({ message: "Failed to schedule the event. Please try again." });
-    }
-  });
+
+    const data = {
+      event_name: eventName,
+      venue,
+      event_date: date,
+      user_id: decoded.id,
+    };
+
+    // Insert the event into the database
+    db.query("INSERT INTO events SET ?", data, (err, result) => {
+      if (err) {
+        console.error("Error inserting event:", err);
+        return res
+          .status(500)
+          .json({ message: "Failed to schedule event. Please try again." });
+      }
+
+      // Check if the insertion was successful
+      if (result.affectedRows === 1) {
+        return res
+          .status(201)
+          .json({ message: "Event scheduled successfully!" });
+      } else {
+        return res
+          .status(500)
+          .json({ message: "Failed to schedule the event. Please try again." });
+      }
+    });
+  } catch (error) {
+    console.error("Token verification error:", error);
+    return res
+      .status(401)
+      .json({ message: "Invalid token. Please log in again." });
+  }
 });
+
+
 
 app.get("/fetchEvents", (req, res) => {
   const authHeader = req.headers.authorization;
-
-  // Validate Authorization header
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized: Malformed token or no token provided.",
-    });
+    return res.status(401).json({ success: false, message: "Unauthorized" });
   }
 
-  // Extract token
   const token = authHeader.split(" ")[1];
-
   try {
-    // Verify and decode token
     const decoded = jwt.verify(token, SECRET_KEY);
-
-    // Fetch events for the authenticated user
     const fetchEventsQuery = `
       SELECT event_name AS eventName, venue, event_date AS eventDate
       FROM events
       WHERE user_id = ?
       ORDER BY event_date ASC
     `;
-
     db.query(fetchEventsQuery, [decoded.id], (err, results) => {
       if (err) {
-        console.error("Error fetching events:", err);
-        return res.status(500).json({
-          success: false,
-          message: "An error occurred while fetching events.",
-        });
+        return res.status(500).json({ success: false, message: "DB error" });
       }
-
-      if (results.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "No events found for this user.",
-        });
-      }
-
-      res.status(200).json({
-        success: true,
-        events: results,
-      });
+      res.status(200).json({ success: true, events: results });
     });
   } catch (error) {
-    console.error("Token verification failed:", error);
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({
-        success: false,
-        message: "Token expired, please log in again.",
-      });
-    }
-    res.status(401).json({
-      success: false,
-      message: "Invalid or malformed token.",
-    });
+    return res.status(401).json({ success: false, message: "Invalid token" });
   }
 });
 
