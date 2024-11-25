@@ -128,7 +128,7 @@ app.post("/events", (req, res) => {
   const data = { event_name: eventName, venue, event_date: date };
   db.query("INSERT INTO events SET ?", data, (err, result) => {
     if (err) {
-      console.error("Error inserting event:", err);
+      console.error("Error inserting event:", err);p
       return res.status(500).json({ message: "Failed to schedule event. Please try again." });
     }
     if (result.affectedRows === 1) {

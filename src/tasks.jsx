@@ -4,6 +4,9 @@ import axios from "axios";
 
 function Tasks() {
   const [username, setUsername] = useState("");
+  const [eventName, setName] = useState("");
+  const [venue, setVenue] = useState("");
+  const [date, setDate] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -73,8 +76,41 @@ const handleFormSubmit = async (e) => {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
+{/*API to fetch the events details*/}
+  useEffect(() => {
+    const fetchEventDetails = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/fetchEvents", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const data = await response.json();
+        if (data.success) {
+          setName(data.eventName);
+          setVenue(data.venue);
+          setDate(data.date);
+        }
+        else {
+          setError("Error fetching event details");
+        }
+      }
+      catch (error) {
+        setError("Error occured while fetching event details");
+      }
+      finally {
+        setLoading(false);
+      }
+      
+    }
+    fetchEventDetails();
+}, []);
+
+
+
   return (
-    <div className="tasks-container">
+    <><div className="tasks-container">
       {/* Welcome Message */}
       <header className="welcome-message">
         <h1>Welcome back, {username}!</h1>
@@ -110,8 +146,7 @@ const handleFormSubmit = async (e) => {
               value={eventDetails.eventName}
               onChange={handleInputChange}
               placeholder="Enter event name"
-              required
-            />
+              required />
 
             <label htmlFor="venue">Venue:</label>
             <input
@@ -121,8 +156,7 @@ const handleFormSubmit = async (e) => {
               value={eventDetails.venue}
               onChange={handleInputChange}
               placeholder="Enter venue"
-              required
-            />
+              required />
 
             <label htmlFor="date">Date:</label>
             <input
@@ -131,15 +165,26 @@ const handleFormSubmit = async (e) => {
               name="date"
               value={eventDetails.date}
               onChange={handleInputChange}
-              required
-            />
+              required />
             <button type="submit" className="primary-btn">
               Submit
             </button>
           </form>
         </section>
       )}
-    </div>
+    </div><div className="EventDetails">
+        <h2>Event Details</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>{ }</th>
+              <th>Venue</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+        </table>
+
+      </div></>
   );
 }
 
