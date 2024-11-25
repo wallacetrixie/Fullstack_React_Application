@@ -139,6 +139,69 @@ app.post("/events", (req, res) => {
   });
 });
 
+app.get("/fetchEvents", (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  // Validate Authorization header
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized: Malformed token or no token provided.",
+    });
+  }
+
+  // Extract token
+  const token = authHeader.split(" ")[1];
+
+  try {
+    // Verify and decode token
+    const decoded = jwt.verify(token, SECRET_KEY);
+
+    // Fetch events for the authenticated user
+    const fetchEventsQuery = `
+      SELECT event_name AS eventName, venue, event_date AS eventDate
+      FROM events
+      WHERE user_id = ?
+      ORDER BY event_date ASC
+    `;
+
+    db.query(fetchEventsQuery, [decoded.id], (err, results) => {
+      if (err) {
+        console.error("Error fetching events:", err);
+        return res.status(500).json({
+          success: false,
+          message: "An error occurred while fetching events.",
+        });
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "No events found for this user.",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        events: results,
+      });
+    });
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        success: false,
+        message: "Token expired, please log in again.",
+      });
+    }
+    res.status(401).json({
+      success: false,
+      message: "Invalid or malformed token.",
+    });
+  }
+});
+
+
 
 app.listen(5000, () => {
   console.log("Server started on port 5000");
