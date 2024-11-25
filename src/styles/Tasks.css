@@ -118,3 +118,65 @@ button.primary-btn {
 .event-form form button {
   margin-top: 10px;
 }
+.tasks-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.welcome-message {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.primary-btn {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.primary-btn:hover {
+  background-color: #0056b3;
+}
+
+.event-details {
+  margin-top: 20px;
+}
+
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.events-table th,
+.events-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.events-table th {
+  background-color: #f4f4f4;
+}
+
+.events-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.events-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.events-table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .events-table {
+    font-size: 14px;
+  }
+}
