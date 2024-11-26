@@ -119,93 +119,47 @@ app.get("/user", (req, res) => {
 });
 
 
+ 
+
+// Endpoint to add an event
 app.post("/events", (req, res) => {
-  const authHeader = req.headers.authorization;
-
-  // Validate the authorization token
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res
-      .status(401)
-      .json({ message: "Unauthorized. Please log in first." });
+  const { eventName, venue, date } = req.body;
+  if (!eventName || !venue || !date) {
+    return res.status(400).json({ message: "Please fill in all fields before submitting." });
   }
 
-  const token = authHeader.split(" ")[1];
-  try {
-    // Verify the token to extract the user's ID
-    const decoded = jwt.verify(token, SECRET_KEY);
-    const { eventName, venue, date } = req.body;
-
-    // Validate request body
-    if (!eventName || !venue || !date) {
-      return res
-        .status(400)
-        .json({ message: "Please fill in all fields before submitting." });
+  const data = {
+    event_name: eventName,
+    venue,
+    event_date: date,
+  };
+  db.query("INSERT INTO events SET ?", data, (err, result) => {
+    if (err) {
+      console.error("Error inserting event:", err);
+      return res.status(500).json({ message: "Failed to schedule event. Please try again." });
     }
-
-    const data = {
-      event_name: eventName,
-      venue,
-      event_date: date,
-      user_id: decoded.id,
-    };
-
-    // Insert the event into the database
-    db.query("INSERT INTO events SET ?", data, (err, result) => {
-      if (err) {
-        console.error("Error inserting event:", err);
-        return res
-          .status(500)
-          .json({ message: "Failed to schedule event. Please try again." });
-      }
-
-      // Check if the insertion was successful
-      if (result.affectedRows === 1) {
-        return res
-          .status(201)
-          .json({ message: "Event scheduled successfully!" });
-      } else {
-        return res
-          .status(500)
-          .json({ message: "Failed to schedule the event. Please try again." });
-      }
-    });
-  } catch (error) {
-    console.error("Token verification error:", error);
-    return res
-      .status(401)
-      .json({ message: "Invalid token. Please log in again." });
-  }
+    if (result.affectedRows === 1) {
+      return res.status(201).json({ message: "Event scheduled successfully!" });
+    } else {
+      return res.status(500).json({ message: "Failed to schedule the event. Please try again." });
+    }
+  });
 });
-
-
-
 app.get("/fetchEvents", (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ success: false, message: "Unauthorized" });
-  }
+  const fetchEventsQuery = `
+    SELECT event_name AS eventName, venue, event_date AS eventDate
+    FROM events
+    ORDER BY event_date ASC
+  `;
 
-  const token = authHeader.split(" ")[1];
-  try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    const fetchEventsQuery = `
-      SELECT event_name AS eventName, venue, event_date AS eventDate
-      FROM events
-      WHERE user_id = ?
-      ORDER BY event_date ASC
-    `;
-    db.query(fetchEventsQuery, [decoded.id], (err, results) => {
-      if (err) {
-        return res.status(500).json({ success: false, message: "DB error" });
-      }
-      res.status(200).json({ success: true, events: results });
-    });
-  } catch (error) {
-    return res.status(401).json({ success: false, message: "Invalid token" });
-  }
+  db.query(fetchEventsQuery, (err, results) => {
+    if (err) {
+      console.error("Error fetching events:", err);
+      return res.status(500).json({ message: "Failed to fetch events. Please try again." });
+    }
+    res.status(200).json({ success: true, events: results });
+  });
 });
-
-
 
 app.listen(5000, () => {
   console.log("Server started on port 5000");
