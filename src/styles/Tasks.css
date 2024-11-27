@@ -10,6 +10,12 @@
   margin-bottom: 20px;
   color: #333;
 }
+.delete-btn{
+  background-color: rgb(245, 58, 58);
+}
+.delete-btn:hover{
+  background-color: rgb(247, 15, 15);
+}
 
 .description {
   text-align: center;

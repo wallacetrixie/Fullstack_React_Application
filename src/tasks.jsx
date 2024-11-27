@@ -92,6 +92,29 @@ function Tasks() {
       );
     }
   };
+const handleDelete = async (id) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this event?"
+  );
+  if (!confirmDelete) return;
+
+  try {
+    const response = await axios.delete(`http://localhost:5000/deleteEvent/${id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    if (response.status === 200) {
+      alert("Event deleted successfully!");
+      setEventDetails(eventDetails.filter((event) => event.id !== id));
+    } else {
+      alert("Failed to delete the event.");
+    }
+  } catch (error) {
+    alert(error.response?.data?.message || "An error occurred. Please try again.");
+  }
+};
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
@@ -161,30 +184,41 @@ function Tasks() {
       <div className="event-details">
         <h2>Event Details</h2>
         <table className="events-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Event Name</th>
-              <th>Venue</th>
-              <th>Date</th>
-            </tr>
-          </thead>
+         <thead>
+  <tr>
+    <th>#</th>
+    <th>Event Name</th>
+    <th>Venue</th>
+    <th>Date</th>
+    <th>Action</th>
+  </tr>
+</thead>
+
           <tbody>
-            {eventDetails.length > 0 ? (
-              eventDetails.map((event, index) => (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{event.eventName}</td>
-                  <td>{event.venue}</td>
-                  <td>{new Date(event.date).toLocaleDateString()}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="4">No events scheduled.</td>
-              </tr>
-            )}
-          </tbody>
+  {eventDetails.length > 0 ? (
+    eventDetails.map((event, index) => (
+      <tr key={event.id}>
+        <td>{index + 1}</td>
+        <td>{event.eventName}</td>
+        <td>{event.venue}</td>
+        <td>{new Date(event.date).toLocaleDateString()}</td>
+        <td>
+          <button
+            className="delete-btn"
+            onClick={() => handleDelete(event.id)}
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="5">No events scheduled.</td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
     </div>

@@ -147,7 +147,7 @@ app.post("/events", (req, res) => {
 });
 app.get("/fetchEvents", (req, res) => {
   const fetchEventsQuery = `
-    SELECT event_name AS eventName, venue, event_date AS eventDate
+    SELECT id, event_name AS eventName, venue, event_date AS eventDate
     FROM events
     ORDER BY event_date ASC
   `;
@@ -160,6 +160,23 @@ app.get("/fetchEvents", (req, res) => {
     res.status(200).json({ success: true, events: results });
   });
 });
+// Endpoint to delete an event
+app.delete("/deleteEvent/:id", (req, res) => {
+  const { id } = req.params;
+  const deleteEventQuery = "DELETE FROM events WHERE id = ?";
+  db.query(deleteEventQuery, [id], (err, result) => {
+    if (err) {
+      console.error("Error deleting event:", err);
+      return res.status(500).json({ message: "Failed to delete event. Please try again." });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Event not found." });
+    }
+    res.status(200).json({ message: "Event deleted successfully." });
+  });
+});
+
+
 
 app.listen(5000, () => {
   console.log("Server started on port 5000");
